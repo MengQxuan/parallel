@@ -1,13 +1,10 @@
 #include <iostream>
-#include <vector>
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
 
-void gaussian_elimination(vector<vector<double>> &A, vector<double> &b, vector<double> &x)
+void gaussian_elimination(double **A, double *b, double *x, int n)
 {
-    int n = A.size();
-
     // 消去过程
     for (int k = 0; k < n; k++)
     {
@@ -38,17 +35,40 @@ void gaussian_elimination(vector<vector<double>> &A, vector<double> &b, vector<d
 int main()
 {
     int n;
-    cout << "请输入矩阵的维度：";
+    cout << "输入矩阵维度: ";
     cin >> n;
-    // 初始化矩阵 A 和向量 b，所有元素设为 1
-    vector<vector<double>> A(n, vector<double>(n, 1.0));
-    vector<double> b(n, 1.0);
-    vector<double> x(n, 0.0); // 解向量
+
+    // 堆上动态分配二维数组 A 和一维数组 b、x
+    double **A = new double *[n];
+    for (int i = 0; i < n; ++i)
+    {
+        A[i] = new double[n];
+    }
+    double *b = new double[n];
+    double *x = new double[n];
+
+    for (int i = 0; i < n; ++i)
+    {
+        b[i] = 1.0;
+        for (int j = 0; j < n; ++j)
+        {
+            A[i][j] = 1.0;
+        }
+    }
 
     auto start = high_resolution_clock::now();
-    gaussian_elimination(A, b, x);
+    gaussian_elimination(A, b, x, n);
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "普通高斯消元完成，用时：" << duration.count() << " 微秒" << endl;
+    cout << "内存不对齐的普通高斯消元完成，用时：" << duration.count() << " 微秒" << endl;
+
+    for (int i = 0; i < n; ++i)
+    {
+        delete[] A[i];
+    }
+    delete[] A;
+    delete[] b;
+    delete[] x;
+
     return 0;
 }
