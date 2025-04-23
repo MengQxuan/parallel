@@ -54,7 +54,7 @@ int main()
 
     if (!A || !b || !x)
     {
-        cerr << "内存分配失败" << endl;
+        cout << "内存分配失败" << endl;
         return 1;
     }
 
