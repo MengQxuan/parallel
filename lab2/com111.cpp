@@ -57,6 +57,18 @@ int main()
         }
     }
 
+    // // 初始化矩阵A（参考m_reset逻辑）
+    // srand(time(0));
+    // for (int i = 0; i < n; ++i)
+    // {
+    //     fill(A[i], A[i] + n, 0.0); // 行初始化为0
+    //     A[i][i] = 1.0;             // 对角线置1
+    //     for (int j = i + 1; j < n; ++j)
+    //     {
+    //         A[i][j] = rand() % 100 + 1; // 生成1~100的随机数
+    //     }
+    // }
+
     auto start = high_resolution_clock::now();
     gaussian_elimination(A, b, x, n);
     auto end = high_resolution_clock::now();
