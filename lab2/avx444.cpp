@@ -83,7 +83,7 @@ int main()
     gaussian_elimination(A, b, x, n);
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "Back of AVX:" << duration.count() << "us" << endl;
+    cout << "Back of AVX444:" << duration.count() << "us" << endl;
 
     _aligned_free(A);
     _aligned_free(b);

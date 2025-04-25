@@ -93,7 +93,7 @@ int main()
     gaussian_elimination(A, b, x, n);
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "AVX Gaussian Elimination Done, Time: " << duration.count() << "us" << endl;
+    cout << "AVX222:" << duration.count() << "us" << endl;
 
     _aligned_free(A);
     _aligned_free(b);

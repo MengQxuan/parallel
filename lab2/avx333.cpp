@@ -83,7 +83,7 @@ int main()
     gaussian_elimination_back_substitution_avx(A, b, x, n);
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "Back of AVX:" << duration.count() << "us" << endl;
+    cout << "Back of AVX333:" << duration.count() << "us" << endl;
     free(A);
     free(b);
     free(x);
