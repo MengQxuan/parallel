@@ -1,3 +1,4 @@
+//4路 优化消去过程 不对齐
 #include <iostream>
 #include <chrono>
 #include <cstdlib>
@@ -35,7 +36,6 @@ void gaussian_elimination_avx_no_alignment(double *A, double *b, double *x, int 
             {
                 A[i * n + j] -= factor * A[k * n + j];
             }
-
             b[i] -= factor * b[k];
         }
     }
@@ -85,13 +85,11 @@ int main()
     auto start = high_resolution_clock::now();
     gaussian_elimination_avx_no_alignment(A, b, x, n);
     auto end = high_resolution_clock::now();
-
     auto duration = duration_cast<microseconds>(end - start);
     cout << "AVX Gaussian Elimination Done, Time: " << duration.count() << "us" << endl;
 
     free(A);
     free(b);
     free(x);
-
     return 0;
 }

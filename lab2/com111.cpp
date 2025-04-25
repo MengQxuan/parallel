@@ -1,3 +1,4 @@
+//串行 不对齐
 #include <iostream>
 #include <chrono>
 using namespace std;
@@ -69,6 +70,5 @@ int main()
     delete[] A;
     delete[] b;
     delete[] x;
-
     return 0;
 }

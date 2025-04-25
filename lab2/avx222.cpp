@@ -1,3 +1,4 @@
+//4路 优化消去过程 对齐
 #include <iostream>
 #include <chrono>
 #include <immintrin.h>
@@ -18,7 +19,6 @@ void gaussian_elimination(double *A, double *b, double *x, int n)
             int j = k + 1;
             for (; j + 3 < n; j += 4)
             {
-                // 确保地址对齐
                 double *addr_i = &A[i * n + j];
                 double *addr_k = &A[k * n + j];
 
@@ -43,7 +43,6 @@ void gaussian_elimination(double *A, double *b, double *x, int n)
             {
                 A[i * n + j] -= factor * A[k * n + j];
             }
-
             b[i] -= factor * b[k];
         }
     }
@@ -99,6 +98,5 @@ int main()
     _aligned_free(A);
     _aligned_free(b);
     _aligned_free(x);
-
     return 0;
 }

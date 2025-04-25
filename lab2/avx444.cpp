@@ -49,7 +49,6 @@ void gaussian_elimination(double *A, double *b, double *x, int n)
         for (; j < n; j++) {
             sum -= A[i * n + j] * x[j];
         }
-
         x[i] = sum / A[i * n + i];
     }
 }
@@ -84,11 +83,10 @@ int main()
     gaussian_elimination(A, b, x, n);
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "AVX Gaussian Elimination Done, Time: " << duration.count() << "us" << endl;
+    cout << "Back of AVX:" << duration.count() << "us" << endl;
 
     _aligned_free(A);
     _aligned_free(b);
     _aligned_free(x);
-
     return 0;
 }

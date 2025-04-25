@@ -46,7 +46,6 @@ void gaussian_elimination_back_substitution_avx(double *A, double *b, double *x,
         {
             sum += A[i * n + j] * x[j];
         }
-
         x[i] = (b[i] - sum) / A[i * n + i];
     }
 }
@@ -84,10 +83,9 @@ int main()
     gaussian_elimination_back_substitution_avx(A, b, x, n);
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "Back Substitution AVX Optimized Done, Time: " << duration.count() << "us" << endl;
+    cout << "Back of AVX:" << duration.count() << "us" << endl;
     free(A);
     free(b);
     free(x);
-
     return 0;
 }

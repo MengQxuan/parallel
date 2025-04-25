@@ -1,3 +1,4 @@
+//串行 对齐
 #include <iostream>
 #include <chrono>
 #include <cstdlib>
@@ -51,7 +52,6 @@ int main()
     double *A = static_cast<double *>(_aligned_malloc(matrix_size, align));
     double *b = static_cast<double *>(_aligned_malloc(vector_size, align));
     double *x = static_cast<double *>(_aligned_malloc(vector_size, align));
-
     if (!A || !b || !x)
     {
         cout << "内存分配失败" << endl;
@@ -70,13 +70,11 @@ int main()
     auto start = high_resolution_clock::now();
     gaussian_elimination(A, b, x, n);
     auto end = high_resolution_clock::now();
-
     auto duration = duration_cast<microseconds>(end - start);
     cout << "内存对齐的普通高斯消元完成，用时：" << duration.count() << " 微秒" << endl;
 
     _aligned_free(A);
     _aligned_free(b);
     _aligned_free(x);
-
     return 0;
 }
