@@ -5,6 +5,30 @@
 #include <chrono>
 using namespace std;
 
+// 串行
+void neon0(float *A, float *b, float *x, int n)
+{
+    for (int k = 0; k < n; ++k)
+    {
+        for (int i = k + 1; i < n; ++i)
+        {
+            float factor = A[i * n + k] / A[k * n + k];
+            for (int j = k + 1; j < n; ++j)
+                A[i * n + j] -= factor * A[k * n + j];
+
+            b[i] -= factor * b[k];
+        }
+    }
+
+    for (int i = n - 1; i >= 0; --i)
+    {
+        float sum = b[i];
+        for (int j = i + 1; j < n; ++j)
+            sum -= A[i * n + j] * x[j];
+        x[i] = sum / A[i * n + i];
+    }
+}
+
 // 优化消去过程
 void neon1(float *A, float *b, float *x, int n)
 {
@@ -14,7 +38,6 @@ void neon1(float *A, float *b, float *x, int n)
         {
             float factor = A[i * n + k] / A[k * n + k];
             float32x4_t factor_vec = vdupq_n_f32(factor);
-
             int j = k + 1;
             for (; j + 3 < n; j += 4)
             {
@@ -50,7 +73,6 @@ void neon2(float *A, float *b, float *x, int n)
         for (int i = k + 1; i < n; ++i)
         {
             float factor = A[i * n + k] / A[k * n + k];
-
             for (int j = k + 1; j < n; ++j)
                 A[i * n + j] -= factor * A[k * n + j];
 
@@ -58,14 +80,11 @@ void neon2(float *A, float *b, float *x, int n)
         }
     }
 
-    // 回代过程优化
     for (int i = n - 1; i >= 0; --i)
     {
         float sum = b[i];
         int j = i + 1;
-
         float32x4_t sum_vec = vmovq_n_f32(0.0f);
-
         for (; j + 3 < n; j += 4)
         {
             float32x4_t a_vec = vld1q_f32(&A[i * n + j]);
@@ -95,7 +114,6 @@ void neon3(float *A, float *b, float *x, int n)
         {
             float factor = A[i * n + k] / A[k * n + k];
             float32x4_t factor_vec = vdupq_n_f32(factor);
-
             int j = k + 1;
             for (; j + 3 < n; j += 4)
             {
@@ -116,9 +134,7 @@ void neon3(float *A, float *b, float *x, int n)
     {
         float sum = b[i];
         int j = i + 1;
-
         float32x4_t sum_vec = vmovq_n_f32(0.0f);
-
         for (; j + 3 < n; j += 4)
         {
             float32x4_t a_vec = vld1q_f32(&A[i * n + j]);
@@ -145,7 +161,7 @@ int main()
     cout << "Enter matrix size: ";
     cin >> n;
 
-    // 使用 malloc 分配内存 ,不对齐
+    // malloc,不对齐
     float *A = (float *)malloc(sizeof(float) * n * n);
     float *b = (float *)malloc(sizeof(float) * n);
     float *x = (float *)malloc(sizeof(float) * n);
@@ -156,7 +172,6 @@ int main()
         return 1;
     }
 
-    // 初始化矩阵和向量
     for (int i = 0; i < n; ++i)
     {
         b[i] = 1.0f;
@@ -166,21 +181,24 @@ int main()
         }
     }
 
-    // 消去过程优化的时间
     auto start = chrono::high_resolution_clock::now();
-    neon1(A, b, x, n);
+    neon0(A, b, x, n);
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
+    cout << "neon0:" << duration.count() << "us" << endl;
+
+    start = chrono::high_resolution_clock::now();
+    neon1(A, b, x, n);
+    end = chrono::high_resolution_clock::now();
+    duration = chrono::duration_cast<chrono::microseconds>(end - start);
     cout << "neon1:" << duration.count() << "us" << endl;
 
-    // 回代过程优化的时间
     start = chrono::high_resolution_clock::now();
     neon2(A, b, x, n);
     end = chrono::high_resolution_clock::now();
     duration = chrono::duration_cast<chrono::microseconds>(end - start);
     cout << "neon2:" << duration.count() << "us" << endl;
 
-    // 消去和回代过程都优化的时间
     start = chrono::high_resolution_clock::now();
     neon3(A, b, x, n);
     end = chrono::high_resolution_clock::now();
