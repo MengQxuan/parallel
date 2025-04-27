@@ -1,4 +1,4 @@
-//串行 不对齐
+// 串行 不对齐
 #include <iostream>
 #include <chrono>
 using namespace std;
@@ -7,6 +7,11 @@ using namespace std::chrono;
 void gaussian_elimination(double **A, double *b, double *x, int n)
 {
     // 消去过程
+    /*
+    外层循环：遍历每一列k，共n次。
+    中层循环：对每一列k，遍历后续的n - k 行（i = k+1 到 n-1）。
+    内层循环：对每行i，更新n - k 列（j = k到n-1）。
+    */
     for (int k = 0; k < n; k++)
     {
         for (int i = k + 1; i < n; i++)
@@ -21,6 +26,10 @@ void gaussian_elimination(double **A, double *b, double *x, int n)
     }
 
     // 回代过程
+    /*
+    外层循环：遍历n行（i = n - 1到 0）。
+    内层循环：对第i行，需遍历 j = i + 1 到 n - 1，共 n - i - 1次操作。
+    */
     x[n - 1] = b[n - 1] / A[n - 1][n - 1];
     for (int i = n - 2; i >= 0; i--)
     {
@@ -35,6 +44,7 @@ void gaussian_elimination(double **A, double *b, double *x, int n)
 
 int main()
 {
+
     int n;
     cout << "输入矩阵维度: ";
     cin >> n;
