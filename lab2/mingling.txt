@@ -1,0 +1,7 @@
+g++ -O0 -mavx avx.cpp -o avx
+./avx.exe
+g++ -O0 -mavx512f avx.cpp -o avx
+
+g++ -O0 -march=native -o sse01 sse01.cpp
+
+g++ -O2 -mcpu=cortex-a76 -o neon neon.cpp
