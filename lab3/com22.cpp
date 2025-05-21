@@ -11,13 +11,12 @@ using namespace std::chrono;
 #define MAX_THREADS 8
 
 // 全局变量
+pthread_barrier_t barrier;
+sem_t sem_main, sem_worker;
 double **A, *b, *x;
 int n;
 int num_threads;
-
-sem_t sem_main;
-sem_t sem_workerstart[MAX_THREADS];
-sem_t sem_workerend[MAX_THREADS];
+int current_k = 0;
 
 struct ThreadData
 {
@@ -39,6 +38,7 @@ void initialize_matrix()
         b[i] = rand() % 100 + 1;
     }
 
+    // 线性组合操作
     for (int k = 0; k < n / 2; ++k)
     {
         int row1 = rand() % n;
@@ -52,28 +52,26 @@ void initialize_matrix()
     }
 }
 
-void *threadFunc(void *param)
+void *worker_thread(void *arg)
 {
-    ThreadData *p = (ThreadData *)param;
-    int t_id = p->thread_id;
+    ThreadData *data = (ThreadData *)arg;
+    int tid = data->thread_id;
 
-    for (int k = 0; k < n; ++k)
+    for (int k = 0; k < n; k++)
     {
-        sem_wait(&sem_workerstart[t_id]);
+        sem_wait(&sem_worker);
 
-        for (int i = k + 1 + t_id; i < n; i += num_threads)
+        for (int i = k + 1 + tid; i < n; i += num_threads)
         {
             double factor = A[i][k] / A[k][k];
-            for (int j = k + 1; j < n; ++j)
+            for (int j = k + 1; j < n; j++)
             {
                 A[i][j] -= factor * A[k][j];
             }
-            A[i][k] = 0.0;
             b[i] -= factor * b[k];
         }
 
         sem_post(&sem_main);
-        sem_wait(&sem_workerend[t_id]);
     }
     pthread_exit(NULL);
     return NULL;
@@ -99,6 +97,7 @@ int main()
     cin >> n;
     cout << "输入线程数 (建议 <= " << MAX_THREADS << "): ";
     cin >> num_threads;
+
     if (num_threads > MAX_THREADS)
         num_threads = MAX_THREADS;
 
@@ -112,65 +111,58 @@ int main()
 
     initialize_matrix();
 
-    sem_init(&sem_main, 0, 0);
-    for (int i = 0; i < num_threads; ++i)
-    {
-        sem_init(&sem_workerstart[i], 0, 0);
-        sem_init(&sem_workerend[i], 0, 0);
-    }
+    pthread_t threads[MAX_THREADS];
+    ThreadData thread_data[MAX_THREADS];
 
-    pthread_t handles[MAX_THREADS];
-    ThreadData param[MAX_THREADS];
-    for (int t_id = 0; t_id < num_threads; ++t_id)
-    {
-        param[t_id].thread_id = t_id;
-        pthread_create(&handles[t_id], NULL, threadFunc, (void *)&param[t_id]);
-    }
+    sem_init(&sem_main, 0, 0);
+    sem_init(&sem_worker, 0, 0);
 
     auto start = high_resolution_clock::now();
 
-    for (int k = 0; k < n; ++k)
+    for (int i = 0; i < num_threads; i++)
     {
-        for (int j = k + 1; j < n; ++j)
-        {
-            A[k][j] /= A[k][k];
-        }
-        b[k] /= A[k][k];
-        A[k][k] = 1.0;
+        thread_data[i].thread_id = i;
+        pthread_create(&threads[i], NULL, worker_thread, (void *)&thread_data[i]);
+    }
 
-        for (int t_id = 0; t_id < num_threads; ++t_id)
+    for (int k = 0; k < n; k++)
+    {
+        current_k = k;
+
+        // 主线程执行除法操作
+        double divisor = A[k][k];
+        for (int j = k + 1; j < n; j++)
         {
-            sem_post(&sem_workerstart[t_id]);
+            A[k][j] /= divisor;
+        }
+        b[k] /= divisor;
+
+        // 唤醒工作线程进行消去操作
+        for (int i = 0; i < num_threads; i++)
+        {
+            sem_post(&sem_worker);
         }
 
-        for (int t_id = 0; t_id < num_threads; ++t_id)
+        // 等待工作线程完成消去操作
+        for (int i = 0; i < num_threads; i++)
         {
             sem_wait(&sem_main);
         }
-
-        for (int t_id = 0; t_id < num_threads; ++t_id)
-        {
-            sem_post(&sem_workerend[t_id]);
-        }
     }
 
-    for (int t_id = 0; t_id < num_threads; ++t_id)
+    for (int i = 0; i < num_threads; i++)
     {
-        pthread_join(handles[t_id], NULL);
+        pthread_join(threads[i], NULL);
     }
 
     back_substitution();
 
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "信号量同步优化的高斯消元完成，用时：" << duration.count() << "us" << endl;
+    cout << "信号量同步优化后的静态线程高斯消元完成，用时：" << duration.count() << "us" << endl;
 
     sem_destroy(&sem_main);
-    for (int i = 0; i < num_threads; ++i)
-    {
-        sem_destroy(&sem_workerstart[i]);
-        sem_destroy(&sem_workerend[i]);
-    }
+    sem_destroy(&sem_worker);
 
     for (int i = 0; i < n; ++i)
     {
