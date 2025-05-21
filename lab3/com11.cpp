@@ -1,3 +1,4 @@
+// 串行
 #include <iostream>
 #include <pthread.h>
 #include <semaphore.h>
@@ -163,7 +164,7 @@ int main()
 
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "信号量同步优化的高斯消元完成，用时：" << duration.count() << "us" << endl;
+    cout << "静态线程+信号量同步优化，用时：" << duration.count() << "us" << endl;
 
     sem_destroy(&sem_main);
     for (int i = 0; i < num_threads; ++i)
