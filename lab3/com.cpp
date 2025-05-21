@@ -1,3 +1,4 @@
+// 串行
 #include <iostream>
 #include <chrono>
 #include <cstdlib>

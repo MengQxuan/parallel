@@ -1,4 +1,4 @@
-// 串行
+// 静态线程+信号量同步优化
 #include <iostream>
 #include <pthread.h>
 #include <semaphore.h>

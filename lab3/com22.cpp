@@ -1,6 +1,6 @@
+// 静态线程+barrier同步
 #include <iostream>
 #include <pthread.h>
-#include <semaphore.h>
 #include <chrono>
 #include <vector>
 #include <cstdlib>
@@ -10,20 +10,18 @@ using namespace std::chrono;
 
 #define MAX_THREADS 8
 
-// 全局变量
-pthread_barrier_t barrier;
-sem_t sem_main, sem_worker;
 double **A, *b, *x;
 int n;
 int num_threads;
-int current_k = 0;
+
+pthread_barrier_t barrier_Division;
+pthread_barrier_t barrier_Elimination;
 
 struct ThreadData
 {
     int thread_id;
 };
 
-// 初始化上三角矩阵并进行线性组合
 void initialize_matrix()
 {
     srand(time(0));
@@ -37,8 +35,6 @@ void initialize_matrix()
         }
         b[i] = rand() % 100 + 1;
     }
-
-    // 线性组合操作
     for (int k = 0; k < n / 2; ++k)
     {
         int row1 = rand() % n;
@@ -52,27 +48,39 @@ void initialize_matrix()
     }
 }
 
-void *worker_thread(void *arg)
+void *threadFunc(void *param)
 {
-    ThreadData *data = (ThreadData *)arg;
-    int tid = data->thread_id;
+    ThreadData *p = (ThreadData *)param;
+    int t_id = p->thread_id;
 
-    for (int k = 0; k < n; k++)
+    for (int k = 0; k < n; ++k)
     {
-        sem_wait(&sem_worker);
-
-        for (int i = k + 1 + tid; i < n; i += num_threads)
+        if (t_id == 0)
         {
-            double factor = A[i][k] / A[k][k];
-            for (int j = k + 1; j < n; j++)
+            for (int j = k + 1; j < n; ++j)
+            {
+                A[k][j] = A[k][j] / A[k][k];
+            }
+            b[k] = b[k] / A[k][k];
+            A[k][k] = 1.0;
+        }
+
+        pthread_barrier_wait(&barrier_Division);
+
+        for (int i = k + 1 + t_id; i < n; i += num_threads)
+        {
+            double factor = A[i][k];
+            for (int j = k + 1; j < n; ++j)
             {
                 A[i][j] -= factor * A[k][j];
             }
+            A[i][k] = 0.0;
             b[i] -= factor * b[k];
         }
 
-        sem_post(&sem_main);
+        pthread_barrier_wait(&barrier_Elimination);
     }
+
     pthread_exit(NULL);
     return NULL;
 }
@@ -97,7 +105,6 @@ int main()
     cin >> n;
     cout << "输入线程数 (建议 <= " << MAX_THREADS << "): ";
     cin >> num_threads;
-
     if (num_threads > MAX_THREADS)
         num_threads = MAX_THREADS;
 
@@ -111,58 +118,32 @@ int main()
 
     initialize_matrix();
 
-    pthread_t threads[MAX_THREADS];
-    ThreadData thread_data[MAX_THREADS];
+    pthread_barrier_init(&barrier_Division, NULL, num_threads);
+    pthread_barrier_init(&barrier_Elimination, NULL, num_threads);
 
-    sem_init(&sem_main, 0, 0);
-    sem_init(&sem_worker, 0, 0);
+    pthread_t handles[MAX_THREADS];
+    ThreadData param[MAX_THREADS];
+    for (int t_id = 0; t_id < num_threads; ++t_id)
+    {
+        param[t_id].thread_id = t_id;
+        pthread_create(&handles[t_id], NULL, threadFunc, (void *)&param[t_id]);
+    }
 
     auto start = high_resolution_clock::now();
 
-    for (int i = 0; i < num_threads; i++)
+    for (int t_id = 0; t_id < num_threads; ++t_id)
     {
-        thread_data[i].thread_id = i;
-        pthread_create(&threads[i], NULL, worker_thread, (void *)&thread_data[i]);
-    }
-
-    for (int k = 0; k < n; k++)
-    {
-        current_k = k;
-
-        // 主线程执行除法操作
-        double divisor = A[k][k];
-        for (int j = k + 1; j < n; j++)
-        {
-            A[k][j] /= divisor;
-        }
-        b[k] /= divisor;
-
-        // 唤醒工作线程进行消去操作
-        for (int i = 0; i < num_threads; i++)
-        {
-            sem_post(&sem_worker);
-        }
-
-        // 等待工作线程完成消去操作
-        for (int i = 0; i < num_threads; i++)
-        {
-            sem_wait(&sem_main);
-        }
-    }
-
-    for (int i = 0; i < num_threads; i++)
-    {
-        pthread_join(threads[i], NULL);
+        pthread_join(handles[t_id], NULL);
     }
 
     back_substitution();
 
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "信号量同步优化后的静态线程高斯消元完成，用时：" << duration.count() << "us" << endl;
+    cout << "静态线程+barrier同步优化，用时：" << duration.count() << "us" << endl;
 
-    sem_destroy(&sem_main);
-    sem_destroy(&sem_worker);
+    pthread_barrier_destroy(&barrier_Division);
+    pthread_barrier_destroy(&barrier_Elimination);
 
     for (int i = 0; i < n; ++i)
     {
