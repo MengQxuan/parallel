@@ -1,3 +1,4 @@
+// 行/列划分 静态+barrier
 #include <iostream>
 #include <pthread.h>
 #include <chrono>
