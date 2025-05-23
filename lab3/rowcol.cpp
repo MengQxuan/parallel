@@ -1,4 +1,3 @@
-// 行/列划分 静态+barrier
 #include <iostream>
 #include <pthread.h>
 #include <chrono>
@@ -55,51 +54,18 @@ void *threadFunc(void *param)
 
     for (int k = 0; k < n; ++k)
     {
-        // 线程 0 执行除法操作
+        // 垂直划分除法部分
+        for (int j = k + 1 + t_id; j < n; j += num_threads)
+        {
+            A[k][j] = A[k][j] / A[k][k];
+        }
         if (t_id == 0)
         {
-            for (int j = k + 1; j < n; ++j)
-            {
-                A[k][j] = A[k][j] / A[k][k];
-            }
             b[k] = b[k] / A[k][k];
             A[k][k] = 1.0;
         }
 
         pthread_barrier_wait(&barrier_Division);
-
-        // // 支持水平划分（按行）和垂直划分（按列）
-        // bool row_partition = false; // false为列划分
-
-        // if (row_partition)
-        // {
-        //     for (int i = k + 1 + t_id; i < n; i += num_threads)
-        //     {
-        //         double factor = A[i][k];
-        //         for (int j = k + 1; j < n; ++j)
-        //         {
-        //             A[i][j] -= factor * A[k][j];
-        //         }
-        //         A[i][k] = 0.0;
-        //         b[i] -= factor * b[k];
-        //     }
-        // }
-        // else
-        // {
-        //     for (int i = k + 1; i < n; ++i)
-        //     {
-        //         double factor = A[i][k];
-        //         for (int j = k + 1 + t_id; j < n; j += num_threads)
-        //         {
-        //             A[i][j] -= factor * A[k][j];
-        //         }
-        //         if (t_id == 0)
-        //         {
-        //             A[i][k] = 0.0;
-        //             b[i] -= factor * b[k];
-        //         }
-        //     }
-        // }
 
         for (int i = k + 1; i < n; ++i) // 列划分
         {
