@@ -1,3 +1,4 @@
+// 串行算法的openmp优化
 #include <iostream>
 #include <chrono>
 #include <cstdlib>
@@ -80,7 +81,7 @@ int main()
     cout << "输入矩阵维度: ";
     cin >> n;
 
-    int num_threads = 4; // 改线程数
+    int num_threads = 8; // 改线程数
 
     double **A = new double *[n];
     for (int i = 0; i < n; ++i)
@@ -98,7 +99,6 @@ int main()
     auto duration = duration_cast<microseconds>(end - start);
     cout << "OpenMP并行优化用时: " << duration.count() << " us" << endl;
 
-    // 清理内存
     for (int i = 0; i < n; ++i)
         delete[] A[i];
     delete[] A;
