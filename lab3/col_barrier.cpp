@@ -1,3 +1,4 @@
+// 列划分的静态线程+barrier同步优化
 #include <iostream>
 #include <pthread.h>
 #include <chrono>
