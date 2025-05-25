@@ -1,0 +1,22 @@
+x86
+
+g++ -std=c++11 -g com.cpp -o com.exe
+
+g++ -O2 -o com11 com11.cpp -pthread
+
+g++ -O2 -fopenmp com_openmp.cpp -o com_openmp
+
+g++ -O2 -fopenmp -mavx -std=c++11 avx_omp.cpp -o avx_omp
+
+g++ -O2 -msse -fopenmp -std=c++11 sse_omp.cpp -o sse_omp
+
+
+arm
+正确格式：bash test.sh [LAB] [NODES] [CORES]
+qsub qsub.sh
+
+g++ -std=c++11 -g main.cc -o main
+
+g++ -O2 -o main main.cc -pthread
+
+g++ -std=c++11 -fopenmp -g main.cc -o main
