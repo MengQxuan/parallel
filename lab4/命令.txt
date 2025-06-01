@@ -1,0 +1,5 @@
+
+
+g++ -O2 com_mpi.cpp -o com_mpi -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
+
+mpiexec -n 8 com_mpi.exe
