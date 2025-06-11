@@ -246,12 +246,12 @@ int main(int argc, char *argv[])
         }
 
         double end_time = MPI_Wtime();
-        double elapsed = end_time - start_time;
+        double duration = end_time - start_time;
 
         if (rank == 0)
         {
-            total_time += elapsed;
-            cout << run + 1 << "用时: " << elapsed * 1000 << " ms" << endl;
+            total_time += duration;
+            cout << run + 1 << "用时: " << duration * 1000 << " ms" << endl;
         }
 
         delete[] run_local_A;
