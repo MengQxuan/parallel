@@ -11,3 +11,6 @@ mpiexec -n 4 mpi_col.exe
 
 g++ -O2 mpi_col2.cpp -o mpi_col2 -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
 mpiexec -n 4 mpi_col2.exe
+
+g++ -O2 mpi_2d.cpp -o mpi_2d -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 16 mpi_2d.exe
