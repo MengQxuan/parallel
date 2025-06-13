@@ -23,3 +23,12 @@ mpiexec -n 4 mpi_streamline.exe
 
 g++ -O2 mpi3.cpp -o mpi3 -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
 mpiexec -n 4 mpi3.exe
+
+g++ -O2 -msse mpi_sse.cpp -o mpi_sse.exe -I"D:\MPI\Include" -L"D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 4 mpi_sse.exe
+
+g++ -O2 -fopenmp mpi_omp.cpp -o mpi_omp.exe -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 4 mpi_omp.exe
+
+g++ -O2 -msse2 -fopenmp mpi_omp_sse.cpp -o mpi_omp_sse.exe -I"D:\MPI\Include" -L"D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 4 mpi_omp_sse.exe
