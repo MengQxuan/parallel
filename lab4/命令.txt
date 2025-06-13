@@ -3,6 +3,9 @@
 g++ -O2 com_mpi.cpp -o com_mpi -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
 mpiexec -n 4 com_mpi.exe
 
+g++ -O2 com_mpi2.cpp -o com_mpi2 -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 4 com_mpi2.exe
+
 g++ -O2 mpi_row.cpp -o mpi_row -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
 mpiexec -n 8 mpi_row.exe
 
@@ -14,3 +17,9 @@ mpiexec -n 4 mpi_col2.exe
 
 g++ -O2 mpi_2d.cpp -o mpi_2d -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
 mpiexec -n 16 mpi_2d.exe
+
+g++ -O2 mpi_streamline.cpp -o mpi_streamline -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 4 mpi_streamline.exe
+
+g++ -O2 mpi3.cpp -o mpi3 -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 4 mpi3.exe

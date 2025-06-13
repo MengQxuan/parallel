@@ -35,6 +35,8 @@
         "tuple": "cpp",
         "utility": "cpp",
         "cassert": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "complex": "cpp",
+        "cinttypes": "cpp"
     }
 }
