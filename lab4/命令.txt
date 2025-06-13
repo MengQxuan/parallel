@@ -32,3 +32,6 @@ mpiexec -n 4 mpi_omp.exe
 
 g++ -O2 -msse2 -fopenmp mpi_omp_sse.cpp -o mpi_omp_sse.exe -I"D:\MPI\Include" -L"D:\MPI\Lib\x64" -lmsmpi
 mpiexec -n 4 mpi_omp_sse.exe
+
+g++ -O2 mpi_cache.cpp -o mpi_cache -I "D:\MPI\Include" -L "D:\MPI\Lib\x64" -lmsmpi
+mpiexec -n 4 mpi_cache.exe
