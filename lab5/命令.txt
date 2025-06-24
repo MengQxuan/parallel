@@ -1,2 +1,9 @@
 nvcc test.cu -o test
 ./test
+
+nvcc gpu1.cu -o gpu1
+./gpu1
+
+//查看GPU型号
+lspci | grep -i nvidia
+00:08.0 VGA compatible controller: NVIDIA Corporation TU104GL [Tesla T4] (rev a1)
