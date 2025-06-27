@@ -207,6 +207,5 @@ int main()
         cudaEventDestroy(start);
         cudaEventDestroy(stop);
     }
-
     return 0;
 }

@@ -10,6 +10,7 @@ nvcc gpu2.cu -o gpu2
 nvcc gpu_blocksize.cu -o gpu_blocksize
 ./gpu_blocksize
 
+
 //查看GPU型号
 lspci | grep -i nvidia
 00:08.0 VGA compatible controller: NVIDIA Corporation TU104GL [Tesla T4] (rev a1)

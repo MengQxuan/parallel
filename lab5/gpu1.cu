@@ -91,7 +91,6 @@ int main()
     auto duration = duration_cast<microseconds>(end - start);
     cout << "GPU高斯消元完成，用时：" << duration.count() << "us" << endl;
 
-    // 内存释放
     cudaFree(d_A);
     cudaFree(d_b);
     delete[] A;
