@@ -172,13 +172,15 @@ brew install mpich
 brew install open-mpi
 
 # Windows (推荐使用MS-MPI)
-# 从微软官网下载: https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi
+# 从微软官网下载: https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi
 ```
 
 #### CUDA (用于GPU编程)
 ```bash
 # 需要NVIDIA GPU和CUDA Toolkit
 # 从NVIDIA官网下载: https://developer.nvidia.com/cuda-downloads
+# 建议版本: CUDA 10.0+ (需根据GPU型号选择合适版本)
+# 本项目在CUDA 11.x 和 12.x 上测试通过
 
 # 验证安装
 nvcc --version
@@ -287,7 +289,9 @@ mpic++ -std=c++11 -O2 -msse4.2 mpi_sse.cpp -o mpi_sse
 mpirun -np 4 ./mpi_sse
 
 # Windows编译示例 (使用MS-MPI)
-# g++ -O2 mpi_col.cpp -o mpi_col -I "C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -L "C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64" -lmsmpi
+# 注意: 路径可能因安装位置不同而异，请根据实际安装路径调整
+# 64-bit: g++ -O2 mpi_col.cpp -o mpi_col -I "C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -L "C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64" -lmsmpi
+# 或使用环境变量: g++ -O2 mpi_col.cpp -o mpi_col -I "%MSMPI_INC%" -L "%MSMPI_LIB64%" -lmsmpi
 # mpiexec -n 4 mpi_col.exe
 ```
 
